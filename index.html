@@ -846,7 +846,49 @@
         }
         
         /* ▲▲▲ 新样式替换结束 ▲▲▲ */
-        
+        /* 顶部标题栏 */
+.phone-header {
+  background: #f5f5f5;
+  padding: 8px;
+  text-align: center;
+  font-weight: bold;
+  border-bottom: 1px solid #ddd;
+}
+
+/* APP 网格布局 */
+.app-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding: 16px;
+}
+
+/* APP 图标样式 */
+.app-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #fafafa;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.app-icon:hover {
+  transform: scale(1.05);
+  background: #f0f0f0;
+}
+.app-icon .icon {
+  font-size: 28px;
+  margin-bottom: 6px;
+}
+.app-icon .label {
+  font-size: 14px;
+  color: #333;
+}
+
         /* ▼▼▼ 把所有这些新样式粘贴到 <style> 的末尾 ▼▼▼ */
         
         /* === 动态功能栏样式 === */
@@ -27861,52 +27903,64 @@ async function handlePostClick(e) {
         
         // ▲▲▲ 添加结束 ▲▲▲
         // ▼▼▼ 在 init() 函数的事件监听器区域末尾添加 ▼▼▼
-        // ▼▼▼ “查角色手机”功能的事件监听器 ▼▼▼
+/* ===========================
+   查角色手机 功能补全
+   =========================== */
+
+// 入口按钮 → 打开角色选择界面
 document.getElementById('check-phone-btn').addEventListener('click', openCharacterSelectionScreen);
+
+// 点击角色 → 打开角色手机
 document.getElementById('character-selection-list').addEventListener('click', (e) => {
     const item = e.target.closest('.character-select-item');
     if (item && item.dataset.chatId) {
         openCharacterPhone(item.dataset.chatId);
     }
 });
-document.getElementById('character-phone-container').addEventListener('click', (e) => {
-    const backBtn = e.target.closest('.back-btn');
-    if (backBtn) {
-        if (backBtn.dataset.targetPage) {
-            showCharacterPhonePage(backBtn.dataset.targetPage);
-        } else if (backBtn.dataset.targetScreen) {
-            showScreen(backBtn.dataset.targetScreen);
-        }
+
+/**
+ * 渲染角色手机主屏幕的 APP 图标 (V4 美化版)
+ */
+function renderCharacterAppGrid() {
+    const gridEl = document.getElementById('character-app-grid');
+    gridEl.innerHTML = '';
+
+    const apps = [
+        { id: 'messages', name: '短信', icon: '📩', target: 'messages-view' },
+        { id: 'contacts', name: '通讯录', icon: '👥', target: 'contacts-view' },
+        { id: 'gallery', name: '相册', icon: '🖼️', target: 'gallery-view' },
+        { id: 'browser', name: '浏览器', icon: '🌐', target: 'character-browser-screen' },
+        { id: 'bank', name: '钱包', icon: '💰', target: 'character-bank-screen' }
+    ];
+
+    apps.forEach(app => {
+        const appEl = document.createElement('div');
+        appEl.className = 'app-icon';
+        appEl.innerHTML = `
+            <span class="icon">${app.icon}</span>
+            <span class="label">${app.name}</span>
+        `;
+        appEl.addEventListener('click', () => {
+            console.log("进入 APP:", app.name);
+            showCharacterPhonePage(app.target);
+        });
+        gridEl.appendChild(appEl);
+    });
+}
+
+/**
+ * 切换角色手机内部页面
+ */
+function showCharacterPhonePage(pageId) {
+    const pages = document.querySelectorAll('.character-phone-page');
+    pages.forEach(p => p.style.display = 'none');
+
+    const activePage = document.getElementById(pageId);
+    if (activePage) {
+        activePage.style.display = 'block';
     }
-    const deleteBtn = e.target.closest('.item-delete-btn');
-    if (deleteBtn) {
-        if (deleteBtn.classList.contains('message-delete-btn')) {
-            const contactName = deleteBtn.dataset.contactName;
-            const index = parseInt(deleteBtn.dataset.index);
-            if (contactName && !isNaN(index)) {
-                handleCharacterChatMessageDeletion(contactName, index);
-            }
-        } 
-        else {
-            const dataType = deleteBtn.dataset.type;
-            const index = parseInt(deleteBtn.dataset.index);
-            if (dataType && !isNaN(index)) {
-                handleCharacterDataDeletion(dataType, index);
-            }
-        }
-    }
-});
-document.getElementById('character-chat-list').addEventListener('click', (e) => {
-    const item = e.target.closest('.chat-list-item');
-    if (item && item.dataset.contactName) {
-        renderCharacterChatHistory(item.dataset.contactName);
-        showCharacterPhonePage('character-chat-history-screen');
-    }
-});
-document.getElementById('generate-character-data-btn').addEventListener('click', generateCharacterPhoneData);
-document.getElementById('clear-character-data-btn').addEventListener('click', clearCharacterPhoneData);
-document.getElementById('generate-diary-entry-btn').addEventListener('click', generateNewDiaryEntry);
-        // ▲▲▲ 监听器结束 ▲▲▲
+}
+
         // 动态操作菜单的按钮事件
         document.getElementById('edit-post-btn').addEventListener('click', openPostEditor);
         document.getElementById('copy-post-btn').addEventListener('click', copyPostContent);
@@ -29591,7 +29645,40 @@ document.getElementById('status-bar-toggle-switch').addEventListener('change', (
     <div id="character-selection-list" class="list-container"></div>
 </div>
 
-<div id="character-phone-container" class="screen">
+    <div id="character-phone-container" class="screen" style="display:none;">
+
+  <!-- 顶部标题 -->
+  <div class="phone-header">
+    <span id="character-phone-owner-name"></span>
+  </div>
+
+  <!-- 主屏幕（APP 网格） -->
+  <div id="character-phone-screen" class="character-phone-page">
+    <div id="character-app-grid" class="app-grid"></div>
+  </div>
+
+  <!-- APP 页面们（初始隐藏） -->
+  <div id="messages-view" class="character-phone-page" style="display:none;">
+    <h3>短信</h3>
+  </div>
+
+  <div id="contacts-view" class="character-phone-page" style="display:none;">
+    <h3>通讯录</h3>
+  </div>
+
+  <div id="gallery-view" class="character-phone-page" style="display:none;">
+    <h3>相册</h3>
+  </div>
+
+  <div id="character-browser-screen" class="character-phone-page" style="display:none;">
+    <h3>浏览器</h3>
+  </div>
+
+  <div id="character-bank-screen" class="character-phone-page" style="display:none;">
+    <h3>钱包</h3>
+  </div>
+</div>
+
     <div class="character-phone-frame">
         <div class="character-phone-notch"></div>
         <div class="character-phone-inner-screen">
