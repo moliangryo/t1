@@ -8740,6 +8740,80 @@
     <input type="file" id="ai-avatar-upload-input" accept="image/*" hidden>
     <input type="file" id="group-avatar-upload-input" accept="image/*" hidden>
     <script>
+
+    /* ===========================
+   查角色手机 功能模块
+   =========================== */
+
+// 入口事件监听器
+document.getElementById('check-phone-btn').addEventListener('click', openCharacterSelectionScreen);
+
+// 点击角色选择列表 → 打开对应角色的手机
+document.getElementById('character-selection-list').addEventListener('click', (e) => {
+    const item = e.target.closest('.character-select-item');
+    if (item && item.dataset.chatId) {
+        openCharacterPhone(item.dataset.chatId);
+    }
+});
+
+/**
+ * 打开角色选择界面
+ */
+async function openCharacterSelectionScreen() {
+    await renderCharacterSelectionScreen();
+    showScreen('character-selection-screen');
+}
+
+/**
+ * 渲染角色选择列表
+ */
+async function renderCharacterSelectionScreen() {
+    const listEl = document.getElementById('character-selection-list');
+    listEl.innerHTML = '';
+
+    Object.entries(state.chats).forEach(([chatId, chat]) => {
+        const item = document.createElement('div');
+        item.className = 'character-select-item';
+        item.dataset.chatId = chatId;
+        item.textContent = chat.name;
+        listEl.appendChild(item);
+    });
+}
+
+/**
+ * 打开指定角色的手机
+ */
+function openCharacterPhone(chatId) {
+    activeCharacterPhoneId = chatId;
+    const chat = state.chats[chatId];
+    if (!chat) return;
+
+    // 设置标题
+    document.getElementById('character-phone-owner-name').textContent = `${chat.name}的手机`;
+
+    // 渲染 APP 图标
+    if (typeof renderCharacterAppGrid === "function") {
+        renderCharacterAppGrid();
+    }
+
+    // 显示外壳 + 默认主屏幕
+    showScreen('character-phone-container');
+    showCharacterPhonePage('character-phone-screen');
+}
+
+/**
+ * 切换角色手机内部页面
+ */
+function showCharacterPhonePage(pageId) {
+    const pages = document.querySelectorAll('.character-phone-page');
+    pages.forEach(p => p.style.display = 'none');
+
+    const activePage = document.getElementById(pageId);
+    if (activePage) {
+        activePage.style.display = 'block';
+    }
+}
+
 // ▼▼▼ 在这里粘贴下面的新代码 ▼▼▼
 if (!Array.prototype.findLastIndex) {
   Object.defineProperty(Array.prototype, 'findLastIndex', {
