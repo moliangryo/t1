@@ -29592,6 +29592,29 @@ document.getElementById('status-bar-toggle-switch').addEventListener('change', (
 </div>
 
 <div id="character-phone-container" class="screen">
+    <!-- 顶部标题 -->
+<div class="phone-header">
+  <span id="character-phone-owner-name"></span>
+</div>
+
+<!-- 主屏幕（APP 网格） -->
+<div id="character-phone-screen" class="character-phone-page">
+  <div id="character-app-grid" class="app-grid"></div>
+</div>
+
+<!-- APP 页面们（初始隐藏） -->
+<div id="messages-view" class="character-phone-page" style="display:none;">
+  <h3>短信</h3>
+</div>
+
+<div id="contacts-view" class="character-phone-page" style="display:none;">
+  <h3>通讯录</h3>
+</div>
+
+<div id="gallery-view" class="character-phone-page" style="display:none;">
+  <h3>相册</h3>
+</div>
+
     <div class="character-phone-frame">
         <div class="character-phone-notch"></div>
         <div class="character-phone-inner-screen">
