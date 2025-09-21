@@ -24335,6 +24335,21 @@ async function renderCharacterSelectionScreen() {
         listEl.appendChild(item);
     });
 }
+ * 【V2重构版】打开指定角色的手机界面
+ */
+function openCharacterPhone(chatId) {
+    activeCharacterPhoneId = chatId;
+    const chat = state.chats[chatId];
+    if (!chat) return;
+
+    document.getElementById('character-phone-owner-name').textContent = `${chat.name}的手机`;
+    renderCharacterAppGrid(); // 渲染APP图标
+
+    // 核心修改：我们现在显示的是“手机外壳”这个总容器
+    showScreen('character-phone-container'); 
+    // 同时，确保默认显示的是它的主屏幕
+    showCharacterPhonePage('character-phone-screen');
+}
 
 // ... (此处省略了所有其他核心函数，因为它们太长了) ...
 
