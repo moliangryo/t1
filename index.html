@@ -24335,23 +24335,50 @@ async function renderCharacterSelectionScreen() {
         listEl.appendChild(item);
     });
 }
- * 【V2重构版】打开指定角色的手机界面
- */
-function openCharacterPhone(chatId) {
-    activeCharacterPhoneId = chatId;
-    const chat = state.chats[chatId];
-    if (!chat) return;
-
-    document.getElementById('character-phone-owner-name').textContent = `${chat.name}的手机`;
-    renderCharacterAppGrid(); // 渲染APP图标
-
-    // 核心修改：我们现在显示的是“手机外壳”这个总容器
-    showScreen('character-phone-container'); 
-    // 同时，确保默认显示的是它的主屏幕
-    showCharacterPhonePage('character-phone-screen');
-}
-
+ 
 // ... (此处省略了所有其他核心函数，因为它们太长了) ...
+/* 【V2调试版】打开指定角色的手机界面 */
+function openCharacterPhone(chatId) {
+    console.log("openCharacterPhone 被触发:", chatId);
+
+    // 1. 检查 state.chats 是否存在
+    if (!state || !state.chats || !state.chats[chatId]) {
+        console.warn("未找到角色:", chatId, state);
+        return;
+    }
+
+    const chat = state.chats[chatId];
+    console.log("找到角色:", chat);
+
+    // 2. 更新顶部标题
+    const ownerNameEl = document.getElementById('character-phone-owner-name');
+    if (ownerNameEl) {
+        ownerNameEl.textContent = `${chat.name}的手机`;
+    } else {
+        console.warn("缺少 #character-phone-owner-name 元素");
+    }
+
+    // 3. 渲染角色的 APP 图标
+    if (typeof renderCharacterAppGrid === "function") {
+        renderCharacterAppGrid();
+    } else {
+        console.warn("⚠️ renderCharacterAppGrid 函数不存在");
+    }
+
+    // 4. 切换到角色手机容器
+    if (typeof showScreen === "function") {
+        showScreen('character-phone-container');
+    } else {
+        console.warn("⚠️ showScreen 函数不存在");
+    }
+
+    // 5. 默认显示角色的主屏幕
+    if (typeof showCharacterPhonePage === "function") {
+        showCharacterPhonePage('character-phone-screen');
+    } else {
+        console.warn("⚠️ showCharacterPhonePage 函数不存在");
+    }
+}
 
 /**
  * Handles deleting a single chat message inside the character's phone.
